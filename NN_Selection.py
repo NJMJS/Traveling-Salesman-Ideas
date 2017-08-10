@@ -86,43 +86,57 @@ def NN():
 
 
 
-###IDEA 2: Insert locations one at a time, dropping them in their proper slot that adds the least distance.
-# Due to being based on insertion sort, the run time is essentially the same as insertion sort: O(n) = n^2
+###IDEA 2: Select the best one to add at the time, and put it in.
+# Due to being based on selection sort, the run time is similar.
+# Due to having to check everything in the list to find the inseriton point,
+#   multiply by an extra n: O(n) = n^3
 
-# Disqualifited due to not making a significant number of wins vs NN
+# N^3 disqualifies it to start with, but it never even won 1/5 of the cases on any number of nodes
 
 def new():
+    def insert(slot, node, order):
+        loc = 0
+        hold = []
+        while loc < len(order):
+            if loc == slot:
+                hold.append(node)
+            hold.append(order[loc])
+            loc += 1
+        return hold
+        
     order = [nodes[0],nodes[1],nodes[2], nodes[0]]
+
     loc = 3
-
-    "add and order"
+    remaining = []
     while loc < len(nodes):
-        INSERT_TO = 1
-        d1 = nodes[loc].distance(order[0])
-        d2 = nodes[loc].distance(order[1])
-        LOC = 2
-        while LOC < len(order):
-            D1 = nodes[loc].distance(order[LOC])
-            D2 = nodes[loc].distance(order[LOC-1])
-            if d1+d2 > D1 + D2:
-                d1 = D1
-                d2 = D2
-                INSERT_TO = LOC            
-            LOC += 1
-
-        hold = [order[0]]
-        count = 1
-        while count < len(order):
-            if count == INSERT_TO:
-                hold.append(nodes[loc])
-            hold.append(order[count])
-            count += 1
-
-        order = hold
+        remaining.append(nodes[loc])
         loc += 1
 
+    while len(remaining) > 0:
+        SELECT = 0
+        SLOT = 1
+        d1 = order[0].distance(remaining[0])
+        d2 = order[1].distance(remaining[0])
+        LOC = 0
+        while LOC < len(remaining):
+            slot = 1
+            while slot < len(order):
+                D1 = order[slot].distance(remaining[LOC])
+                D2 = order[slot-1].distance(remaining[LOC])
+                if D1 + D2 < d1 + d2:
+                    d1 = D1
+                    d2 = D2
+                    SLOT = slot
+                    SELECT = LOC
+                slot += 1
+            LOC += 1
+                
+        order = insert(SLOT,remaining[SELECT],order)
+        remaining.remove(remaining[SELECT])
+    
     tot_dist = float(0)
     loc = 1
+    
     while loc < len(order):
         dist = order[loc-1].distance(order[loc])
         tot_dist += dist
